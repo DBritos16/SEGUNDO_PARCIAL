@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+
+  mysqldb:
+    image: mysql:8.0.33
+
+    container_name: mysql-database
+
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: parcial
+
+    ports:
+      - 3306:3306
+
+    volumes:
+      - ./dbdata/mysql:/mysql
+
+  mongodb:
+    image: mongo:6.0
+
+    container_name: mongodb-database
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: parcial
+
+    ports:
+      - 27017:27017
+
+    volumes:
+      - ./dbdata/mongo:/mongo
+
+  express:
+    container_name: server  
+
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+
+    environment:
+      PORT: 3000
+      MYSQL_DB_HOST: mysqldb
+      MONGODB_URI: mongodb://root:parcial@mongo:27017/
+
+    depends_on:
+      - mysqldb
+      - mongodb
+
+    ports:
+      - 3000:3000
+    
+    volumes:
+      - ./backend:/backend
+
